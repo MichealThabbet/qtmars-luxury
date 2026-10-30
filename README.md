@@ -1,2 +1,11 @@
-# qtmars-luxury
-Luxury Coptic calendar and daily reading tracker web app
+# Logs
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build output
+/dist/
+
+# System
+.DS_Store
