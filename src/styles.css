@@ -1,0 +1,175 @@
+import { useEffect, useMemo, useState } from 'react'
+import readings from './data/readings.json'
+import { toCopticDate } from './lib/copticCalendar'
+
+function matchReading(date) {
+  const iso = new Date(date).toISOString().slice(0, 10)
+  return readings.find((item) => item.gregorian === iso) ?? readings[0]
+}
+
+function App() {
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [reading, setReading] = useState(() => matchReading(new Date()))
+
+  useEffect(() => {
+    setReading(matchReading(selectedDate))
+  }, [selectedDate])
+
+  const copticDate = useMemo(() => toCopticDate(selectedDate), [selectedDate])
+  const progressValue = Math.min(88, 28 + (selectedDate.getDate() % 30))
+
+  return (
+    <div className="page-shell">
+      <div className="bg-glow glow-one" />
+      <div className="bg-glow glow-two" />
+
+      <div className="app-frame">
+        <header className="topbar">
+          <div>
+            <p className="kicker">Luxury faith companion</p>
+            <h1>القطمارس</h1>
+          </div>
+
+          <button className="ghost-button">اليوم</button>
+        </header>
+
+        <main className="content-grid">
+          <section className="hero card">
+            <div className="hero-copy">
+              <span className="badge">قراءة اليوم</span>
+              <h2>{reading.title}</h2>
+              <p>{reading.text}</p>
+
+              <div className="meta-row">
+                <div className="meta-pill">
+                  ميلادى:{' '}
+                  <strong>
+                    {selectedDate.toLocaleDateString('ar-EG', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })}
+                  </strong>
+                </div>
+                <div className="meta-pill">
+                  قبطي:{' '}
+                  <strong>
+                    {copticDate.day} {copticDate.month} {copticDate.year}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="mini-calendar">
+              <span className="mini-label">تاريخ اليوم</span>
+              <div className="mini-date">{selectedDate.getDate()}</div>
+              <div className="mini-month">
+                {selectedDate.toLocaleDateString('ar-EG', { month: 'long' })}
+              </div>
+              <div className="mini-year">{selectedDate.getFullYear()}</div>
+            </div>
+          </section>
+
+          <section className="stats-grid">
+            <div className="stat-card card">
+              <span>الصفحات</span>
+              <strong>{reading.pages}</strong>
+            </div>
+            <div className="stat-card card">
+              <span>الهدف</span>
+              <strong>{reading.goal}</strong>
+            </div>
+            <div className="stat-card card">
+              <span>الق��اس</span>
+              <strong>{reading.season}</strong>
+            </div>
+            <div className="stat-card card">
+              <span>اللون</span>
+              <strong>{reading.color}</strong>
+            </div>
+          </section>
+
+          <section className="main-panel">
+            <article className="card reading-card">
+              <div className="section-head">
+                <h3>القراءة</h3>
+                <span className="dot" />
+              </div>
+
+              <div className="reading-body">
+                <p className="reading-subtitle">{reading.subtitle}</p>
+                <p>{reading.text}</p>
+                <blockquote>{reading.lesson}</blockquote>
+              </div>
+            </article>
+
+            <aside className="card side-card">
+              <div className="section-head">
+                <h3>تفاصيل اليوم</h3>
+              </div>
+
+              <ul className="detail-list">
+                <li>
+                  <span>نوع الخدمة</span>
+                  <strong>{reading.type}</strong>
+                </li>
+                <li>
+                  <span>اللون</span>
+                  <strong>{reading.color}</strong>
+                </li>
+                <li>
+                  <span>الذكرى</span>
+                  <strong>{reading.memory}</strong>
+                </li>
+                <li>
+                  <span>الإنجيل</span>
+                  <strong>{reading.gospel}</strong>
+                </li>
+                <li>
+                  <span>القراءة الأولى</span>
+                  <strong>{reading.firstReading}</strong>
+                </li>
+              </ul>
+            </aside>
+          </section>
+
+          <section className="card planner-card">
+            <div className="planner-head">
+              <div>
+                <p className="kicker small">متابعة</p>
+                <h3>التقدم الأسبوعي</h3>
+              </div>
+              <span className="pill">{Math.round(progressValue)}%</span>
+            </div>
+
+            <div className="progress-track">
+              <div className="progress-bar" style={{ width: `${progressValue}%` }} />
+            </div>
+
+            <div className="week-list">
+              {reading.week.map((item) => (
+                <div className="week-item" key={item.day}>
+                  <strong>{item.day}</strong>
+                  <span>{item.title}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="card selector-card">
+            <div className="section-head">
+              <h3>اختيار التاريخ</h3>
+            </div>
+            <input
+              type="date"
+              value={selectedDate.toISOString().slice(0, 10)}
+              onChange={(event) => setSelectedDate(new Date(event.target.value))}
+            />
+          </section>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+export default App
